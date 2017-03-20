@@ -4,7 +4,7 @@ import java.util.List;
 
 import core.Message;
 
-public interface Layer1
+public interface ILayer1
 {
 	public void send(Message msg);
 	public void send(Message msg, String ChannelName);
