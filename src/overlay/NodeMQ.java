@@ -16,10 +16,12 @@ import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.ShutdownSignalException;
 
 import core.Message;
+import core.MessageListener;
 
 public class NodeMQ extends Thread implements Consumer
 {
 	private List<String> queues;
+	private List<MessageListener> listeners;
 	private int id;
 	private Channel channel;
 	
@@ -28,11 +30,12 @@ public class NodeMQ extends Thread implements Consumer
 		this.queues = new ArrayList<String>();
 		this.id = i;
 		
+		this.listeners = new ArrayList<MessageListener>();
+		
 	    ConnectionFactory factory = new ConnectionFactory();
 	    factory.setHost("localhost");
 	    Connection connection = factory.newConnection();
 	    this.channel = connection.createChannel();
-	    
 	}
 	
 	public void addNeighbor(int id)
@@ -66,55 +69,31 @@ public class NodeMQ extends Thread implements Consumer
 		}
 	}
 	
-	/*public void send(int origin, String msg) throws IOException
+	public void addListener(MessageListener listener)
 	{
-		Message m = new Message(this.id, origin, msg);
-		
-	    channel.basicPublish("", queueNameRight, null, m.toString().getBytes());
-	    System.out.println(" [x] Sent '" + msg + "' [" + this.queueNameRight + "]");
-	    
-	}*/
+		this.listeners.add(listener);
+	}
+	
+	public void sendMessage(String queue, Message message) throws IOException
+	{
+		channel.basicPublish("", queue, null, message.toString().getBytes());
+	    System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
+	}
 	
 	@Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException 
 	{
-		
-		/*Message msg;
 		try
 		{
-			msg = Message.decodeJSON(new String(body, "UTF-8"));
-			System.out.println(" [x] Received '" + msg.getMessage() + "' OriginID: " + msg.getOriginalSender());
-		    
-		    if(this.id != msg.getOriginalSender()) // Il ne s'agit pas de la reception de mon propre message
-		    	sendMsg(msg.getOriginalSender(), msg.getMessage());
+			Message msg = Message.deserialize(new String(body, "UTF-8"));
+			this.listeners.forEach(x -> x.receive(msg));
 		}
-		catch (JSONException e)
+		catch (ClassNotFoundException e)
 		{
-			System.err.println(e.getMessage());
 			e.printStackTrace();
-		}*/
+		}
     }
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 	@Override
 	public void handleCancel(String arg0) throws IOException
 	{

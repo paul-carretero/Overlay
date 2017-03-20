@@ -28,6 +28,6 @@ public class RingNode implements Runnable, MessageListener
 	@Override
 	public void receive(Message msg)
 	{
-		System.out.println("J'ai reçu le message : " + msg);
+		System.out.println("J'ai reçu le message : " + msg.getMessage());
 	}
 }
