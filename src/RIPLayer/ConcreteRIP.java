@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import core.Message;
-import layer1.ILayer1;
+import overlay.ILayer1;
 
 public class ConcreteRIP extends Thread implements RIPLayer{
 	
@@ -73,8 +73,8 @@ public class ConcreteRIP extends Thread implements RIPLayer{
 
 	@Override
 	/*
-	 * peut retourner null si sur soit même ou si pas trouvé
-	 * éventuellement implémenter la vérification loopback dans layer 1
+	 * peut retourner null si sur soit mï¿½me ou si pas trouvï¿½
+	 * ï¿½ventuellement implï¿½menter la vï¿½rification loopback dans layer 1
 	 */
 	public String getChannelName(int DestinationID) {
 		return masterMap.get(DestinationID).getChannelName();

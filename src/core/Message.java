@@ -15,7 +15,7 @@ public class Message implements Serializable
 	private static final long serialVersionUID = 1L;
 	
 	private int 	sender;
-	private int 	originalSender;
+	//private int 	originalSender; // A employer dans le layer 2
 	private int 	destination;
 	private String 	message;
 	private boolean	ripMessage;
@@ -28,7 +28,7 @@ public class Message implements Serializable
 	public Message(int from, int to, String message, boolean ripMessage)
 	{
 		this.ripMessage = ripMessage;
-		this.setOriginalSender(from);
+		//this.setOriginalSender(from);
 		this.sender = from;
 		this.destination = to;
 		this.message = message;
@@ -39,7 +39,7 @@ public class Message implements Serializable
 		return sender;
 	}
 
-	public int getOriginalSender()
+	/*public int getOriginalSender()
 	{
 		return originalSender;
 	}
@@ -47,7 +47,7 @@ public class Message implements Serializable
 	public void setOriginalSender(int origin)
 	{
 		this.originalSender = origin;
-	}
+	}*/
 
 	public String getMessage()
 	{
