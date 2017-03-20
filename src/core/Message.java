@@ -1,28 +1,33 @@
 package core;
 import java.io.Serializable;
-import java.io.StringWriter;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class Message implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
-	private int sender;
-	private int originalSender;
-	private int destination;
-	private String message;
-	private MessageType type;
+	private int 	sender;
+	private int 	originalSender;
+	private int 	destination;
+	private String 	message;
+	private boolean	ripMessage;
 	
 	/**
 	 * @param sender
 	 * @param origin
 	 * @param message
 	 */
-	public Message(int from, int to, String message)
+	public Message(int from, int to, String message, boolean ripMessage)
 	{
-		this.type = MessageType.MSG;
+		this.ripMessage = ripMessage;
 		this.setOriginalSender(from);
 		this.sender = from;
 		this.destination = to;
@@ -54,7 +59,12 @@ public class Message implements Serializable
 		return this.destination;
 	}
 	
-	public String toString()
+	public boolean isRipMessage() 
+	{
+		return ripMessage;
+	}
+	
+	/*public String toString()
 	{
 		JSONObject obj = new JSONObject();
 		try
@@ -81,5 +91,28 @@ public class Message implements Serializable
 		String message = obj.getString("message");
 		
 		return new Message(sender, origin, message);
-	}
+	}*/
+	
+    public String serialize() throws IOException {
+        ByteArrayOutputStream arrayOutputStream	= new ByteArrayOutputStream();
+        GZIPOutputStream gzipOutputStream 		= new GZIPOutputStream(arrayOutputStream);
+        ObjectOutputStream objectOutputStream 	= new ObjectOutputStream(gzipOutputStream);
+        
+		objectOutputStream.writeObject(this);
+		objectOutputStream.flush();
+		
+		return new String(Base64.encode(arrayOutputStream.toByteArray()));
+    }
+
+    public static Message deserialize(String msg) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream arrayInputStream	= new ByteArrayInputStream(Base64.decode(msg));
+        GZIPInputStream gzipInputStream			= new GZIPInputStream(arrayInputStream);
+        ObjectInputStream objectInputStream 	= new ObjectInputStream(gzipInputStream);
+        Object o 								= objectInputStream.readObject();
+        
+    	if(o instanceof Message){
+    		return (Message) o;
+    	}
+    	return null;
+    }
 }
