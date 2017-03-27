@@ -47,9 +47,9 @@ public class Routeur implements IRoutage {
 			}
 		}
 		
-		for(int i = 0; i < n; i++){
+		/*for(int i = 0; i < n; i++){
 			System.out.println("result = " + Arrays.toString(predecesseur[i]));
-		}
+		}*/
 		
 	}
 

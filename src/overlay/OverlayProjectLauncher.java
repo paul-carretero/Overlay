@@ -2,6 +2,7 @@ package overlay;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -11,19 +12,26 @@ import core.NetworkHandler;
 public class OverlayProjectLauncher
 {
 	private static List<NodeMQ> concreteNetwork = new ArrayList<NodeMQ>();
-	private static List<RingNode> ring = new ArrayList<RingNode>();
+	
+	private final static Semaphore SEMAPHORE = new Semaphore(0);
 	
 	public static void main(String[] args)
 	{
 		// TODO: Charger la matrice donnée
-		int[][] matrix = new int[5][5];
+		//int[][] matrix = new int[5][5];
+		int[][] matrix = new int[][] {
+			new int[] {1,1,0,0,1,0},
+			new int[] {1,1,1,0,1,0},
+			new int[] {0,1,1,1,0,0},
+			new int[] {0,0,1,1,1,1},
+			new int[] {1,1,0,1,1,0},
+			new int[] {0,0,0,1,0,1}};
 		
 		try
 		{
-			generateConcreteNetwork(matrix);
-			generateRingAbstractNetwork(matrix);
+			generateConcreteNetwork(matrix); // Génération du réseau "réel"
 			
-			start();
+			startOverlay(); // Mise en route du réseau
 		}
 		catch (IOException | TimeoutException e)
 		{
@@ -36,7 +44,7 @@ public class OverlayProjectLauncher
 	{
 		for(int i = 0; i < matrix.length; i++)
 		{
-			concreteNetwork.add(new NodeMQ(i));
+			concreteNetwork.add(new NodeMQ(i, matrix, SEMAPHORE));
 		}
 		
 		for(int x = 0; x < matrix.length; x++)
@@ -53,16 +61,21 @@ public class OverlayProjectLauncher
 		}
 	}
 	
-	public static void generateRingAbstractNetwork(int matrix[][])
+	public static void startOverlay()
 	{
-		for(int i = 0; i < concreteNetwork.size(); i++)
+		// Lancement des threads (noeuds)
+		for(NodeMQ concreteNode : concreteNetwork)
 		{
-			RingNode node = new RingNode(i, new NetworkHandler(concreteNetwork.get(i), matrix));
+			try
+			{
+				concreteNode.start();
+				SEMAPHORE.acquire();
+			}
+			catch (InterruptedException e)
+			{
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
-	}
-	
-	public static void start()
-	{
-		concreteNetwork.forEach(x -> x.run());
 	}
 }

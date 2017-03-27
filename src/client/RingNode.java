@@ -4,7 +4,7 @@ import core.MessageListener;
 import core.Message;
 import core.NetworkHandler;
 
-public class RingNode implements Runnable, MessageListener
+public class RingNode implements Loadable, MessageListener
 {
 	private int id;
 	private NetworkHandler network;
@@ -13,13 +13,14 @@ public class RingNode implements Runnable, MessageListener
 	{
 		this.id = id;
 		this.network = network;
-	}
-	
-	@Override
-	public void run()
-	{
+		
 		// exemple
 		this.network.listener(this);
+	}
+	
+	public void load()
+	{
+		System.out.println("Je suis le node " + id + " et je LOAD().");
 		
 		if(this.id == 0)
 			this.network.sendRight("test");
@@ -28,7 +29,7 @@ public class RingNode implements Runnable, MessageListener
 	@Override
 	public void receive(Message msg)
 	{
-		System.out.println("J'ai reçu le message : " + msg.getMessage());
+		System.out.println("Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
 		this.network.sendRight(msg);
 	}
 }
