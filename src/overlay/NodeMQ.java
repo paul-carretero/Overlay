@@ -4,9 +4,12 @@ import com.rabbitmq.client.Connection;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
+
+import org.json.JSONException;
 
 //import org.json.JSONException;
 
@@ -21,20 +24,16 @@ import core.Message;
 import core.MessageListener;
 import core.NetworkHandler;
 
-public class NodeMQ extends Thread implements Consumer
+public class NodeMQ implements Consumer
 {
 	private List<String> queues;
 	private List<MessageListener> listeners;
 	private int id;
 	private Channel channel;
 	
-	private RingNode node;
-	private final Semaphore semaphore;
-	
-	public NodeMQ(int i, int[][] matrix, final Semaphore semaphore) throws IOException, TimeoutException
+	public NodeMQ(int id, final int[][] matrix) throws IOException, TimeoutException
 	{
-		this.queues = new ArrayList<String>();
-		this.id = i;
+		this.id = id;
 		this.listeners = new ArrayList<MessageListener>();
 		
 	    ConnectionFactory factory = new ConnectionFactory();
@@ -42,8 +41,11 @@ public class NodeMQ extends Thread implements Consumer
 	    Connection connection = factory.newConnection();
 	    this.channel = connection.createChannel();
 	    
-	    this.node = new RingNode(i, new NetworkHandler(this, matrix));
-	    this.semaphore = semaphore;
+	    queues = new ArrayList<String>();
+	    initializeQueues(matrix[id]);
+	    
+	    System.err.println("NODEMQ CONSTRUCTOR");
+	    System.out.println(Arrays.toString(matrix[id]));
 	    
 	    try
 		{
@@ -60,29 +62,31 @@ public class NodeMQ extends Thread implements Consumer
 		}
 	}
 	
+	private void initializeQueues(int[] matrixLine)
+	{
+	
+		for(int i = 0; i < matrixLine.length; i++)
+		{
+			if(matrixLine[i] == 1 && this.id != i)
+			{
+				addNeighbor(i);
+			}
+		}
+	}
+
 	public void addNeighbor(int id)
 	{
 		// Convention de nommage des queues de communication entre chaque noeud
 		String queueName = (this.id > id) ? id + "Q" + this.id : this.id + "Q" + id;
+		
+		System.out.println("Queue : " + queueName);
+		
 		this.queues.add(queueName);
 	}
 	
 	public int getID()
 	{
 		return this.id;
-	}
-	
-	@Override
-	public void run()
-	{
-		this.node.load();
-		
-		semaphore.release();
-		
-		while(!this.isInterrupted())
-		{
-			// TODO : DO SOMETHING
-		}
 	}
 	
 	public void addListener(MessageListener listener)
@@ -94,7 +98,7 @@ public class NodeMQ extends Thread implements Consumer
 	{
 		try
 		{
-			channel.basicPublish("", queue, null, message.toString().getBytes());
+			channel.basicPublish("", queue, null, message.serialize().getBytes());
 			System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
 		}
 		catch (IOException e)
@@ -108,13 +112,14 @@ public class NodeMQ extends Thread implements Consumer
 	@Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException 
 	{
+		Message msg;
 		try
 		{
-			Message msg = Message.deserialize(new String(body, "UTF-8"));
-			System.out.println("[NODEMQ] Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
+			msg = Message.deserialize(new String(body, "UTF-8"));
+			//System.out.println("[NODEMQ] Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
 			this.listeners.forEach(x -> x.receive(msg));
 		}
-		catch (ClassNotFoundException e)
+		catch (JSONException e)
 		{
 			System.err.println(e.getMessage());
 			e.printStackTrace();

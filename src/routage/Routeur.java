@@ -10,14 +10,27 @@ public class Routeur implements IRoutage {
 	private int		myId;
 	private final static int UNREACHABLE = 1000;
 	
-	public Routeur(int id, int[][] matrix){
-		this.matrix 		= matrix;
-		this.n 				= matrix.length;
+	public Routeur(int id, final int[][] m){
+		this.n 				= m.length;
+		this.matrix 		= new int[n][n];
+		cloneMatrix(m);
 		this.predecesseur 	= new int[n][n];
 		this.myId			= id;
 		initializeMatrix();
 	}
 	
+	private void cloneMatrix(final int[][] matrix2)
+	{
+		int[][] matrix = new int[matrix2.length][matrix2.length];
+		for(int i = 0; i < matrix2.length; i++)
+		{
+			for(int j = 0; j < matrix2.length; j++)
+			{
+				matrix[i][j] = matrix2[i][j];
+			}
+		}
+	}
+
 	protected void initializeMatrix(){
 
 		for(int i = 0; i<n; i++){

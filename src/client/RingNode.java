@@ -1,35 +1,53 @@
 package client;
 
 import core.MessageListener;
+
+import java.util.Arrays;
+
 import core.Message;
 import core.NetworkHandler;
 
-public class RingNode implements Loadable, MessageListener
+public class RingNode extends Thread implements MessageListener
 {
 	private int id;
 	private NetworkHandler network;
 	
-	public RingNode(int id, NetworkHandler network)
+	public RingNode(int id,final int[][] matrix)
 	{
 		this.id = id;
-		this.network = network;
 		
-		// exemple
-		this.network.listener(this);
+		this.network = new NetworkHandler(id, matrix);
+		this.network.setListener(this);
 	}
 	
-	public void load()
+	@Override
+	public void run()
 	{
-		System.out.println("Je suis le node " + id + " et je LOAD().");
+		this.network.sendRight("test id = " + id);
 		
-		if(this.id == 0)
-			this.network.sendRight("test");
+		while(!interrupted())
+		{
+			syncWait();
+		}
 	}
+	
+	synchronized private void syncWait()
+	{
+		try
+		{
+			wait(500);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 
 	@Override
 	public void receive(Message msg)
 	{
 		System.out.println("Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
-		this.network.sendRight(msg);
+		//traitement ...
 	}
 }
