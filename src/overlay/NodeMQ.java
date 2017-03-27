@@ -74,10 +74,19 @@ public class NodeMQ extends Thread implements Consumer
 		this.listeners.add(listener);
 	}
 	
-	public void sendMessage(String queue, Message message) throws IOException
+	public void sendMessage(String queue, Message message)
 	{
-		channel.basicPublish("", queue, null, message.toString().getBytes());
-	    System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
+		try
+		{
+			channel.basicPublish("", queue, null, message.toString().getBytes());
+			System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
+		}
+		catch (IOException e)
+		{
+			System.err.println("[SendMessage] Error : " + e.getMessage());
+			e.printStackTrace();
+		}
+	    
 	}
 	
 	@Override

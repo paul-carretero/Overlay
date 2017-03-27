@@ -29,5 +29,6 @@ public class RingNode implements Runnable, MessageListener
 	public void receive(Message msg)
 	{
 		System.out.println("J'ai reçu le message : " + msg.getMessage());
+		this.network.sendRight(msg);
 	}
 }

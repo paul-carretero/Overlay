@@ -8,6 +8,7 @@ public class Routeur implements IRoutage {
 	private int[][] predecesseur;
 	private int		n;
 	private int		myId;
+	private final static int UNREACHABLE = 1000;
 	
 	public Routeur(int id, int[][] matrix){
 		this.matrix 		= matrix;
@@ -22,9 +23,9 @@ public class Routeur implements IRoutage {
 		for(int i = 0; i<n; i++){
 			for(int j = 0; j < n; j++){
 				if(matrix[i][j] == 0){
-					matrix[i][j] = 1000;
+					matrix[i][j] = UNREACHABLE;
 				}
-				if(i != j && matrix[i][j] < 1000){
+				if(i != j && matrix[i][j] < UNREACHABLE){
 					predecesseur[i][j] = i;
 				}
 				else{
@@ -53,12 +54,19 @@ public class Routeur implements IRoutage {
 	}
 
 	@Override
-	public int getChannelName(int destinationID) {
+	public String getChannelName(int destinationID) {
 		int res = destinationID;
 		while(predecesseur[myId][destinationID] > -1){
 			res = destinationID;
 			destinationID = predecesseur[myId][destinationID];
 		}
-		return res;
+		if(res < myId)
+		{
+			return Integer.toString(res) + "Q" + Integer.toString(myId);
+		}
+		else if(res > myId){
+			return Integer.toString(myId) + "Q" + Integer.toString(res);
+		}
+		return null;
 	}
 }
