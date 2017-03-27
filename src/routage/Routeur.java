@@ -1,7 +1,5 @@
 package routage;
 
-import java.util.Arrays;
-
 public class Routeur implements IRoutage {
 	
 	private int[][] matrix;
@@ -10,7 +8,7 @@ public class Routeur implements IRoutage {
 	private int		myId;
 	private final static int UNREACHABLE = 1000;
 	
-	public Routeur(int id, final int[][] m){
+	public Routeur(int id, int[][] m){
 		this.n 				= m.length;
 		this.matrix 		= new int[n][n];
 		cloneMatrix(m);
@@ -21,7 +19,6 @@ public class Routeur implements IRoutage {
 	
 	private void cloneMatrix(final int[][] matrix2)
 	{
-		int[][] matrix = new int[matrix2.length][matrix2.length];
 		for(int i = 0; i < matrix2.length; i++)
 		{
 			for(int j = 0; j < matrix2.length; j++)
@@ -32,7 +29,6 @@ public class Routeur implements IRoutage {
 	}
 
 	protected void initializeMatrix(){
-
 		for(int i = 0; i<n; i++){
 			for(int j = 0; j < n; j++){
 				if(matrix[i][j] == 0){
@@ -55,15 +51,9 @@ public class Routeur implements IRoutage {
 						matrix[i][j] = matrix[i][k] + matrix[k][j];
 						predecesseur[i][j] = predecesseur[k][j];
 					}
-					
 				}
 			}
-		}
-		
-		/*for(int i = 0; i < n; i++){
-			System.out.println("result = " + Arrays.toString(predecesseur[i]));
-		}*/
-		
+		}		
 	}
 
 	@Override
@@ -73,11 +63,11 @@ public class Routeur implements IRoutage {
 			res = destinationID;
 			destinationID = predecesseur[myId][destinationID];
 		}
-		if(res < myId)
+		if(res < myId && predecesseur[myId][res] > -1 )
 		{
 			return Integer.toString(res) + "Q" + Integer.toString(myId);
 		}
-		else if(res > myId){
+		else if(res > myId && predecesseur[myId][res] > -1 ){
 			return Integer.toString(myId) + "Q" + Integer.toString(res);
 		}
 		return null;
