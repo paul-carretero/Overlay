@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/d/didiercl/M1/S8/IDS/slf4j-jdk14-1.7.22.jar"/>
-	<classpathentry kind="lib" path="/home/d/didiercl/M1/S8/IDS/slf4j-api-1.7.22.jar"/>
-	<classpathentry kind="lib" path="/home/d/didiercl/M1/S8/IDS/amqp-client-4.0.1.jar"/>
-	<classpathentry kind="lib" path="/home/d/didiercl/M1/S8/IDS/java-json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/didie/Documents/Cours/IDS/Overlay/lib/amqp-client-4.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/didie/Documents/Cours/IDS/Overlay/lib/java-json.jar"/>
+	<classpathentry kind="lib" path="C:/Users/didie/Documents/Cours/IDS/Overlay/lib/slf4j-api-1.7.22.jar"/>
+	<classpathentry kind="lib" path="C:/Users/didie/Documents/Cours/IDS/Overlay/lib/slf4j-jdk14-1.7.22.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
