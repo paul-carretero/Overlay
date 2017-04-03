@@ -1,16 +1,15 @@
 package client;
 
 import core.MessageListener;
-
-import java.util.Arrays;
-
-import core.Message;
+import org.json.JSONException;
 import core.NetworkHandler;
 
 public class RingNode extends Thread implements MessageListener
 {
 	private int id;
 	private NetworkHandler network;
+	private static final int BROADCAST	= -1;
+	private static final int BASIC_SEND	= -2;
 	
 	public RingNode(int id,final int[][] matrix)
 	{
@@ -23,11 +22,59 @@ public class RingNode extends Thread implements MessageListener
 	@Override
 	public void run()
 	{
-		this.network.sendRight("test id = " + id);
-		
 		while(!interrupted())
 		{
 			syncWait();
+			if(this.id == 0)
+			{
+				broadcast("test ?");
+			}
+		}
+	}
+	
+	public void messageDisplay(RingMessage rm)
+	{
+		System.out.println("[NODE ID = " + rm.getSourceNode() + " ] -> [ME ID = " + this.id + " ] " + rm.getMessage());
+	}
+	
+	public void sendRight(String message)
+	{
+		RingMessage rm = new RingMessage(this.id, BASIC_SEND , message);
+		this.network.sendRight(rm.serialize());
+	}
+	
+	public void sendLeft(String message)
+	{
+		RingMessage rm = new RingMessage(this.id, BASIC_SEND , message);
+		this.network.sendLeft(rm.serialize());
+	}
+	
+	public void sendTo(int to, String message)
+	{
+		RingMessage rm = new RingMessage(this.id, to , message);
+		this.network.sendRight(rm.serialize());
+	}
+	
+	public void broadcast(String message){
+		RingMessage rm = new RingMessage(this.id, BROADCAST , message);
+		this.network.sendRight(rm.serialize());
+	}
+	
+	private void broadcastHandler(RingMessage rm)
+	{
+		if(rm.getDestinationNode() == BROADCAST && rm.getSourceNode() != this.id){
+			this.network.sendRight(rm.serialize());
+			this.messageDisplay(rm);
+		}
+	}
+	
+	private void sendToHandler(RingMessage rm)
+	{
+		if(rm.getDestinationNode() != this.id){
+			this.network.sendRight(rm.serialize());
+		}
+		else{
+			this.messageDisplay(rm);
 		}
 	}
 	
@@ -35,7 +82,7 @@ public class RingNode extends Thread implements MessageListener
 	{
 		try
 		{
-			wait(500);
+			wait(3000);
 		}
 		catch (InterruptedException e)
 		{
@@ -45,9 +92,32 @@ public class RingNode extends Thread implements MessageListener
 
 
 	@Override
-	public void receive(Message msg)
+	public void receive(String msg)
 	{
-		System.out.println("Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
-		//traitement ...
+		RingMessage ringMessage = null;
+		try
+		{
+			ringMessage = RingMessage.deserialize(msg);
+		}
+		catch (JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
+		if(ringMessage != null){
+			switch (ringMessage.getDestinationNode())
+			{
+			case BROADCAST:
+				this.broadcastHandler(ringMessage);
+				break;
+			case BASIC_SEND:
+				this.messageDisplay(ringMessage);
+				break;
+			default:
+				this.sendToHandler(ringMessage);
+				break;
+			}
+		}
+		
 	}
 }

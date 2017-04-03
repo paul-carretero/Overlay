@@ -2,5 +2,5 @@ package core;
 
 public interface MessageListener
 {
-	public void receive(Message msg);
+	public void receive(String string);
 }

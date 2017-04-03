@@ -1,51 +1,44 @@
 package overlay;
+
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
-
 import org.json.JSONException;
-
-//import org.json.JSONException;
-
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.ShutdownSignalException;
 
-import client.RingNode;
 import core.Message;
 import core.MessageListener;
-import core.NetworkHandler;
+import routage.IRoutage;
 
 public class NodeMQ implements Consumer
 {
-	private List<MQueue> queues;
-	private List<MessageListener> listeners;
-	private int id;
-	private Channel channel;
+	private List<MQueue>			queues;
+	private List<MessageListener>	listeners;
+	private final int 				id;
+	private Channel 				channel;
+	private IRoutage 				routeur;
 	
-	public NodeMQ(int id, final int[][] matrix) throws IOException, TimeoutException
+	public NodeMQ(int id, final int[][] matrix, IRoutage routage) throws IOException, TimeoutException
 	{
-		this.id = id;
-		this.listeners = new ArrayList<MessageListener>();
+		this.id 		= id;
+		this.listeners 	= new ArrayList<MessageListener>();
+		this.routeur 	= routage;
 		
 	    ConnectionFactory factory = new ConnectionFactory();
 	    factory.setHost("localhost");
 	    Connection connection = factory.newConnection();
-	    this.channel = connection.createChannel();
 	    
-	    queues = new ArrayList<MQueue>();
+	    this.channel 	= connection.createChannel();
+	    queues 			= new ArrayList<MQueue>();
+	    
 	    initializeQueues(matrix[id]);
-	    
-	    //System.err.println("NODEMQ CONSTRUCTOR");
-	    //System.out.println(Arrays.toString(matrix[id]));
 	    
 	    try
 		{
@@ -78,13 +71,8 @@ public class NodeMQ implements Consumer
 
 	public void addNeighbor(int id)
 	{
-		// Convention de nommage des queues de communication entre chaque noeud
-		//String queueName = (this.id > id) ? id + "Q" + this.id : this.id + "Q" + id;
-		
-		//System.out.println("ID = " + this.id + " Queue : " + queueName);
 		this.queues.add(new MQueue(this.id + "Q" + id , this.id));
 		this.queues.add(new MQueue(id + "Q" + this.id , id));
-		
 	}
 	
 	public int getID()
@@ -99,18 +87,19 @@ public class NodeMQ implements Consumer
 	
 	public void sendMessage(String queue, Message message)
 	{
-		//System.out.println("Node ID = " + this.id + " SEND to " + queue + "message = " + message);
-		try
+		if(queue != null)
 		{
-			channel.basicPublish("", queue, null, message.serialize().getBytes());
-			System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
+			try
+			{
+				channel.basicPublish("", queue, null, message.serialize().getBytes());
+				//System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
+			}
+			catch (IOException e)
+			{
+				System.err.println("[SendMessage] Error : " + e.getMessage());
+				e.printStackTrace();
+			}
 		}
-		catch (IOException e)
-		{
-			System.err.println("[SendMessage] Error : " + e.getMessage());
-			e.printStackTrace();
-		}
-	    
 	}
 	
 	@Override
@@ -120,9 +109,16 @@ public class NodeMQ implements Consumer
 		try
 		{
 			msg = Message.deserialize(new String(body, "UTF-8"));
-			//System.out.println("[NODEMQ] Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
-			this.listeners.forEach(x -> x.receive(msg));
-			//System.out.println("Node ID = " + this.id + "RECEIVED = " + msg);
+			for(MessageListener l : listeners){
+				if(msg.getDestination() == this.id){
+					l.receive(msg.getMessage());
+				}
+				else{
+					String queue = routeur.getChannelName(msg.getDestination());
+					System.out.println("[FORWARD] nodeID = " + id + "[msg.from = " + msg.getSender() + " msg.to = "+ msg.getDestination() +"]");
+					sendMessage(queue, msg);
+				}
+			}
 		}
 		catch (JSONException e)
 		{

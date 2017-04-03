@@ -9,27 +9,26 @@ import routage.Routeur;
 
 public class NetworkHandler
 {
-	private int[][] matrix;
-	private IRoutage routage;
-	private NodeMQ node;
-	private int myId;
+	private int[][]		matrix;
+	private IRoutage	routage;
+	private NodeMQ		node;
+	private final int	myId;
 	
 	public NetworkHandler(int myId, final int[][] matrix)
 	{
+		this.myId = myId;
 		this.matrix = matrix;
+		this.routage = new Routeur(myId, matrix);
 		
 		try
 		{
-			this.node = new NodeMQ(myId, matrix);
+			this.node = new NodeMQ(myId, matrix, routage);
 		}
 		catch (IOException | TimeoutException e)
 		{
 			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
-		
-		this.routage = new Routeur(myId, matrix);
-		this.myId = myId;
 	}
 	
 	public void setListener(MessageListener s)

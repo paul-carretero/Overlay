@@ -1,18 +1,9 @@
 package core;
+
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 public class Message implements Serializable
 {
