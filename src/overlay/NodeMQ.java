@@ -26,7 +26,7 @@ import core.NetworkHandler;
 
 public class NodeMQ implements Consumer
 {
-	private List<String> queues;
+	private List<MQueue> queues;
 	private List<MessageListener> listeners;
 	private int id;
 	private Channel channel;
@@ -41,18 +41,21 @@ public class NodeMQ implements Consumer
 	    Connection connection = factory.newConnection();
 	    this.channel = connection.createChannel();
 	    
-	    queues = new ArrayList<String>();
+	    queues = new ArrayList<MQueue>();
 	    initializeQueues(matrix[id]);
 	    
-	    System.err.println("NODEMQ CONSTRUCTOR");
-	    System.out.println(Arrays.toString(matrix[id]));
+	    //System.err.println("NODEMQ CONSTRUCTOR");
+	    //System.out.println(Arrays.toString(matrix[id]));
 	    
 	    try
 		{
-			for(String queue : this.queues) 
+			for(MQueue queue : this.queues) 
 			{
-				this.channel.queueDeclare(queue, false, false, false, null);
-				this.channel.basicConsume(queue, true, this);
+				this.channel.queueDeclare(queue.getName(), false, false, false, null);
+				if(queue.getSource() != this.id)
+				{
+					this.channel.basicConsume(queue.getName(), true, this);
+				}
 			}
 		}
 		catch (IOException e)
@@ -64,7 +67,6 @@ public class NodeMQ implements Consumer
 	
 	private void initializeQueues(int[] matrixLine)
 	{
-	
 		for(int i = 0; i < matrixLine.length; i++)
 		{
 			if(matrixLine[i] == 1 && this.id != i)
@@ -77,11 +79,12 @@ public class NodeMQ implements Consumer
 	public void addNeighbor(int id)
 	{
 		// Convention de nommage des queues de communication entre chaque noeud
-		String queueName = (this.id > id) ? id + "Q" + this.id : this.id + "Q" + id;
+		//String queueName = (this.id > id) ? id + "Q" + this.id : this.id + "Q" + id;
 		
-		System.out.println("Queue : " + queueName);
+		//System.out.println("ID = " + this.id + " Queue : " + queueName);
+		this.queues.add(new MQueue(this.id + "Q" + id , this.id));
+		this.queues.add(new MQueue(id + "Q" + this.id , id));
 		
-		this.queues.add(queueName);
 	}
 	
 	public int getID()
@@ -96,6 +99,7 @@ public class NodeMQ implements Consumer
 	
 	public void sendMessage(String queue, Message message)
 	{
+		//System.out.println("Node ID = " + this.id + " SEND to " + queue + "message = " + message);
 		try
 		{
 			channel.basicPublish("", queue, null, message.serialize().getBytes());
@@ -118,6 +122,7 @@ public class NodeMQ implements Consumer
 			msg = Message.deserialize(new String(body, "UTF-8"));
 			//System.out.println("[NODEMQ] Je suis le node " + id + " et j'ai reçu le message : " + msg.getMessage());
 			this.listeners.forEach(x -> x.receive(msg));
+			//System.out.println("Node ID = " + this.id + "RECEIVED = " + msg);
 		}
 		catch (JSONException e)
 		{

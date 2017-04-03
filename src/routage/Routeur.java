@@ -63,11 +63,15 @@ public class Routeur implements IRoutage {
 			res = destinationID;
 			destinationID = predecesseur[myId][destinationID];
 		}
-		if(res < myId && predecesseur[myId][res] > -1 )
+		/*if(res < myId && predecesseur[myId][res] > -1 )
 		{
 			return Integer.toString(res) + "Q" + Integer.toString(myId);
 		}
 		else if(res > myId && predecesseur[myId][res] > -1 ){
+			return Integer.toString(myId) + "Q" + Integer.toString(res);
+		}*/
+		if(predecesseur[myId][res] > -1 )
+		{
 			return Integer.toString(myId) + "Q" + Integer.toString(res);
 		}
 		return null;

@@ -33,6 +33,11 @@ public class Message implements Serializable
 		this.destination = to;
 		this.message = message;
 	}
+	
+	@Override
+	public String toString(){
+		return "[ SENDER = " + sender + " DESTINATION = " + destination + " MESSAGE = " + message + " ]";
+	}
 
 	public int getSender()
 	{
@@ -77,27 +82,4 @@ public class Message implements Serializable
 		
 		return new Message(sender, destination, message);
 	}
-	
-    /*public String serialize() throws IOException {
-        ByteArrayOutputStream arrayOutputStream	= new ByteArrayOutputStream();
-        GZIPOutputStream gzipOutputStream 		= new GZIPOutputStream(arrayOutputStream);
-        ObjectOutputStream objectOutputStream 	= new ObjectOutputStream(gzipOutputStream);
-        
-		objectOutputStream.writeObject(this);
-		objectOutputStream.flush();
-		
-		return new String(Base64.encode(arrayOutputStream.toByteArray()));
-    }*/
-
-    /*public static Message deserialize(String msg) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream arrayInputStream	= new ByteArrayInputStream(Base64.decode(msg));
-        GZIPInputStream gzipInputStream			= new GZIPInputStream(arrayInputStream);
-        ObjectInputStream objectInputStream 	= new ObjectInputStream(gzipInputStream);
-        Object o 								= objectInputStream.readObject();
-        
-    	if(o instanceof Message){
-    		return (Message) o;
-    	}
-    	return null;
-    }*/
 }
