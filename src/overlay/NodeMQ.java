@@ -36,7 +36,7 @@ public class NodeMQ implements Consumer
 	    Connection connection = factory.newConnection();
 	    
 	    this.channel 	= connection.createChannel();
-	    queues 			= new ArrayList<MQueue>();
+	    this.queues 			= new ArrayList<MQueue>();
 	    
 	    initializeQueues(matrix[id]);
 	    
@@ -91,8 +91,7 @@ public class NodeMQ implements Consumer
 		{
 			try
 			{
-				channel.basicPublish("", queue, null, message.serialize().getBytes());
-				//System.out.println(" [x] Sent '" + message.getMessage() + "' [" + queue + "]");
+				this.channel.basicPublish("", queue, null, message.serialize().getBytes());
 			}
 			catch (IOException e)
 			{
@@ -109,13 +108,13 @@ public class NodeMQ implements Consumer
 		try
 		{
 			msg = Message.deserialize(new String(body, "UTF-8"));
-			for(MessageListener l : listeners){
+			for(MessageListener l : this.listeners){
 				if(msg.getDestination() == this.id){
 					l.receive(msg.getMessage());
 				}
 				else{
-					String queue = routeur.getChannelName(msg.getDestination());
-					System.out.println("[FORWARD] nodeID = " + id + "[msg.from = " + msg.getSender() + " msg.to = "+ msg.getDestination() +"]");
+					String queue = this.routeur.getChannelName(msg.getDestination());
+					System.out.println("[FORWARD] nodeID = " + this.id + "[msg.from = " + msg.getSender() + " msg.to = "+ msg.getDestination() +"]");
 					sendMessage(queue, msg);
 				}
 			}
@@ -130,35 +129,30 @@ public class NodeMQ implements Consumer
 	@Override
 	public void handleCancel(String arg0) throws IOException
 	{
-		// TODO Auto-generated method stub
-		
+		// to nothing
 	}
 
 	@Override
 	public void handleCancelOk(String arg0)
 	{
-		// TODO Auto-generated method stub
-		
+		// to nothing
 	}
 
 	@Override
 	public void handleConsumeOk(String arg0)
 	{
-		// TODO Auto-generated method stub
-		
+		// to nothing
 	}
 
 	@Override
 	public void handleRecoverOk(String arg0)
 	{
-		// TODO Auto-generated method stub
-		
+		// to nothing
 	}
 
 	@Override
 	public void handleShutdownSignal(String arg0, ShutdownSignalException arg1)
 	{
-		// TODO Auto-generated method stub
-		
+		// to nothing
 	}
 }

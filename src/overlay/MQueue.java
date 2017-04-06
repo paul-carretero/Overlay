@@ -12,11 +12,11 @@ public class MQueue
 
 	public String getName()
 	{
-		return name;
+		return this.name;
 	}
 
 	public int getSource()
 	{
-		return source;
+		return this.source;
 	}
 }

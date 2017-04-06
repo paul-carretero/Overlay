@@ -4,48 +4,74 @@ import java.io.StringWriter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Représente un message utilisateur avec ses méta-données
+ */
 public class RingMessage
 {
+	/**
+	 * ID du noeud emetteur du message
+	 */
 	private int sourceNode;
+	
+	/**
+	 * ID du noeud destination du message
+	 */
 	private int	destinationNode;
+	
+	/**
+	 * Message utilisateur
+	 */
 	private String message;
 	
+	/**
+	 * @param sourceNode ID du noeud emetteur du message
+	 * @param destinationNode ID du noeud destination du message
+	 * @param message Message utilisateur
+	 */
 	public RingMessage(int sourceNode, int destinationNode, String message){
 		this.sourceNode = sourceNode;
 		this.destinationNode = destinationNode;
 		this.message = message;
 	}
 	
+	/**
+	 * @return le message utilisateur
+	 */
 	public String getMessage()
 	{
-		return message;
+		return this.message;
 	}
 	
+	/**
+	 * @param message Message utilisateur
+	 */
 	public void setMessage(String message)
 	{
 		this.message = message;
 	}
 	
+	/**
+	 * @return L'ID du node destination
+	 */
 	public int getDestinationNode()
 	{
-		return destinationNode;
+		return this.destinationNode;
 	}
 	
-	public void setDestinationNode(int destinationNode)
-	{
-		this.destinationNode = destinationNode;
-	}
-	
+	/**
+	 * @return l'ID émétteur de ce message
+	 */
 	public int getSourceNode()
 	{
-		return sourceNode;
+		return this.sourceNode;
 	}
 	
-	public void setSourceNode(int sourceNode)
-	{
-		this.sourceNode = sourceNode;
-	}
-	
+	/**
+	 * Converti ce RingMessage en string grâce à la bibliothèque JSON
+	 * Permet d'envoyer ce message sous forme de chaine sur la couche réseau
+	 * @return La chaine JSON associée à ce RingMessage
+	 */
 	public String serialize()
 	{
 		JSONObject obj = new JSONObject();
@@ -65,6 +91,12 @@ public class RingMessage
 		}
 	}
 	
+	/**
+	 * @param json une instance de la classe RingMessage serializé en JSON
+	 * @return une nouvelle instance d'un RingMessage (Message utilisateur) correspondant aux données présente dans la chaine JSON passé en paramètre
+	 * @throws JSONException 
+	 * @see JSONObject
+	 */
 	public static RingMessage deserialize(String json) throws JSONException
 	{
 		JSONObject obj = new JSONObject(json);

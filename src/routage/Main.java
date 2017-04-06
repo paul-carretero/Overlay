@@ -1,11 +1,12 @@
 package routage;
 
+/**
+ * Classe de démonstration permettant de vérifier la validité du routage avec une matrice exemple.
+ */
 public class Main {
-
-	/*
-	 * EXEMPLE DE ROUTAGE
+	/**
+	 * @param args unused
 	 */
-	
 	public static void main(String[] args) {
 		int[][] matrix = new int[][] {
 			new int[] {1,1,0,0,1,0},

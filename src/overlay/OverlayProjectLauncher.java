@@ -10,12 +10,10 @@ public class OverlayProjectLauncher
 	
 	public static void main(String[] args)
 	{		
-		MatrixReader mr = new MatrixReader();
-		
 		try
 		{
 			int[][] matrix;
-			matrix = mr.readFile("matrices/matrice2.overlay");
+			matrix = MatrixReader.readFile("matrices/matrice2.overlay");
 			for(int i = 0; i < matrix.length; i++)
 			{
 				clients.add(new RingNode(i, matrix));
@@ -29,7 +27,6 @@ public class OverlayProjectLauncher
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
