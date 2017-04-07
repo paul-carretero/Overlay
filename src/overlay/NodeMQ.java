@@ -25,6 +25,14 @@ public class NodeMQ implements Consumer
 	private Channel 				channel;
 	private IRoutage 				routeur;
 	
+	/**
+	 * Construit un nouveau noeud 
+	 * @param id L'identifiant du nouveau noeud
+	 * @param matrix La matrice de communications entre noeuds
+	 * @param routage Le routeur
+	 * @throws IOException
+	 * @throws TimeoutException
+	 */
 	public NodeMQ(int id, final int[][] matrix, IRoutage routage) throws IOException, TimeoutException
 	{
 		this.id 		= id;
@@ -58,6 +66,10 @@ public class NodeMQ implements Consumer
 		}
 	}
 	
+	/**
+	 * Initialise les communications avec le noeud
+	 * @param matrixLine Le tableau permettant de connaître les voisins à lier avec le noeud courant
+	 */
 	private void initializeQueues(int[] matrixLine)
 	{
 		for(int i = 0; i < matrixLine.length; i++)
@@ -69,22 +81,39 @@ public class NodeMQ implements Consumer
 		}
 	}
 
+	/**
+	 * Ajoute deux queues de communication (bidirectionnel) entre le noeud courant et le noeud identifié, donné en argument
+	 * @param id L'identifiant du noeud NodeMQ à ajouter en voisin
+	 */
 	public void addNeighbor(int id)
 	{
 		this.queues.add(new MQueue(this.id + "Q" + id , this.id));
 		this.queues.add(new MQueue(id + "Q" + this.id , id));
 	}
 	
+	/**
+	 * Obtient l'identifiant du noeud
+	 * @return L'identifiant du noeud
+	 */
 	public int getID()
 	{
 		return this.id;
 	}
 	
+	/**
+	 * Ajoute un écouteur d'evènement de reception de message dans la liste (pattern observer)
+	 * @param listener L'écouteur
+	 */
 	public void addListener(MessageListener listener)
 	{
 		this.listeners.add(listener);
 	}
 	
+	/**
+	 * Envoi un message sur une queue donnée
+	 * @param queue La queue de communication à utiliser
+	 * @param message Le message à envoyer
+	 */
 	public void sendMessage(String queue, Message message)
 	{
 		if(queue != null)

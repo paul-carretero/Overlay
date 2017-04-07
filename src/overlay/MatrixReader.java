@@ -12,6 +12,12 @@ import org.json.JSONObject;
 
 public class MatrixReader 
 {
+	/**
+	 * Charge une matrice depuis un fichier de données
+	 * @param filename Le chemin et le nom du fichier de données
+	 * @return La matrice chargée
+	 * @throws Exception Jetée lorsque le fichier est inexistant, ou lorsque la lecture des données à renontrée une erreur
+	 */
 	public static int[][] readFile(String filename) throws Exception
 	{
 		File file = new File(filename);

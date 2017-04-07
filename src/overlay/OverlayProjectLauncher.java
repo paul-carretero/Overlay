@@ -13,12 +13,17 @@ public class OverlayProjectLauncher
 		try
 		{
 			int[][] matrix;
+			
+			// Chargement de la matrice à partir du fichier
 			matrix = MatrixReader.readFile("matrices/matrice2.overlay");
+			
+			// Création des noeuds utilisateur (ring)
 			for(int i = 0; i < matrix.length; i++)
 			{
 				clients.add(new RingNode(i, matrix));
 			}
 			
+			// Lancement des noeud (démarrage des communications)
 			for(RingNode c : clients)
 			{
 				c.start();
