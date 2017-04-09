@@ -18,30 +18,38 @@ public class OverlayProjectLauncher
 			if(args.length == 0)
 			{
 				System.err.println("L'application attends un argument correspondant" +
-						" au nom du fichier contenant les informations de la matrice à virtualiser.\n" +
+						" au nom du fichier contenant les informations de la matrice ï¿½ virtualiser.\n" +
 						"Exemple : \n java -jar Overlay.jar matrices/matrice1.overlay");
 				System.exit(0);
 			}
 			
-			// Chargement de la matrice à partir du fichier
+			// Chargement de la matrice ï¿½ partir du fichier
 			matrix = MatrixReader.readFile(args[0]);
 			
-			// Création des noeuds utilisateur (ring)
+			// Crï¿½ation des noeuds utilisateur (ring)
 			for(int i = 0; i < matrix.length; i++)
 			{
 				clients.add(new RingNode(i, matrix));
 			}
 			
-			// Lancement des noeud (démarrage des communications)
+			// Lancement des noeud (dï¿½marrage des communications)
 			for(RingNode c : clients)
 			{
 				c.start();
 			}
 			
+			for(RingNode c : clients)
+			{
+				c.join();
+			}
+			
+			System.out.println("clean up");
+			System.exit(0);
+			
 		}
 		catch(ConnectException e)
 		{
-			System.err.println("Connection échouée, verifiez si le serveur RabbitMQ est actif");
+			System.err.println("Connection ï¿½chouï¿½e, verifiez si le serveur RabbitMQ est actif");
 		}
 		catch (Exception e)
 		{

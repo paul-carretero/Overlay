@@ -9,17 +9,22 @@ import org.json.JSONException;
 import core.NetworkHandler;
 
 /**
- * Thread représentant un Noeud du Ring
- * Cette classe regroupe les fonctions offerte à une application utilisateur dans le contexte d'une communication en anneau.
+ * Thread reprï¿½sentant un Noeud du Ring
+ * Cette classe regroupe les fonctions offerte ï¿½ une application utilisateur dans le contexte d'une communication en anneau.
  */
 public class RingNode extends Thread implements MessageListener
 {
+	
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLUE = "\u001B[36m";
+	public static final String ANSI_RED = "\u001B[31m";
+	
 	/**
 	 * ID du noeud courrant
 	 */
 	private int					id;
 	/**
-	 * Objet bas niveau permettant une abstraction du réseau physique
+	 * Objet bas niveau permettant une abstraction du rï¿½seau physique
 	 */
 	private NetworkHandler		network;
 	/**
@@ -27,13 +32,13 @@ public class RingNode extends Thread implements MessageListener
 	 */
 	private static final int	BROADCAST	= -1;
 	/**
-	 * constante indiquant que le message est destiné au voisin directe du noeud considéré (sans considération de l'ID).
+	 * constante indiquant que le message est destinï¿½ au voisin directe du noeud considï¿½rï¿½ (sans considï¿½ration de l'ID).
 	 */
 	private static final int	BASIC_SEND	= -2;
 	
 	/**
 	 * Instancie un Thread utilisateur.
-	 * Instancie également un gestionnaire bas niveau du réseau qui gère les communications.
+	 * Instancie ï¿½galement un gestionnaire bas niveau du rï¿½seau qui gï¿½re les communications.
 	 * @param id ID du node courrant
 	 * @param matrix matrice d'adjacence
 	 * @throws TimeoutException 
@@ -50,28 +55,57 @@ public class RingNode extends Thread implements MessageListener
 	@Override
 	public void run()
 	{
-		while(!interrupted())
+		syncWait(1000);
+		if(this.id == 0)
 		{
-			syncWait();
-			if(this.id == 0)
-			{
-				broadcast("test ?");
-			}
+			System.out.println("-------------------------");
+			System.out.println("--- BROADCAST EXAMPLE ---");
+			System.out.println("-------------------------");
+			broadcast("This is a broadcasted message");
 		}
+		
+		syncWait(20000);
+		if(this.id == 5)
+		{
+			System.out.println("-------------------------");
+			System.out.println("---  SENDTO EXAMPLE   ---");
+			System.out.println("-------------------------");
+			sendTo(3, "This message is from node 5 and it's send to node 3");
+		}
+		
+		syncWait(20000);
+		if(this.id == 0)
+		{
+			System.out.println("-------------------------");
+			System.out.println("--- SENDLEFT EXAMPLE  ---");
+			System.out.println("-------------------------");
+			sendLeft("This message is from node 0 and it's leftsended (to node 5)");
+		}
+		
+		syncWait(20000);
+		if(this.id == 4)
+		{
+			System.out.println("-------------------------");
+			System.out.println("--- SENDRIGHT EXAMPLE ---");
+			System.out.println("-------------------------");
+			sendRight("This message is from node 4 and it's rightsended (to node 5)");
+		}
+		syncWait(2000);
+		System.out.println(ANSI_RED + "[Node ID = " + this.id + "] : [       FINISHED      ]" + ANSI_RESET);
 	}
 	
 	/**
-	 * Méthode affichant un message utilisateur reçu, affiche également la source du message et l'ID du node courrant
-	 * @param rm un message utilisateur à afficher
+	 * Mï¿½thode affichant un message utilisateur reï¿½u, affiche ï¿½galement la source du message et l'ID du node courrant
+	 * @param rm un message utilisateur ï¿½ afficher
 	 */
 	public void messageDisplay(RingMessage rm)
 	{
-		System.out.println("[NODE ID = " + rm.getSourceNode() + " ] -> [ME ID = " + this.id + " ] " + rm.getMessage());
+		System.out.println("[Node ID = " + this.id + "] : [RECEIVED FROM NODE " + rm.getSourceNode() + " ] : " + rm.getMessage());
 	}
 	
 	/**
-	 * Méthode permettant d'envoyer un message utilisateur au node à droite du node actuel sur le RING
-	 * @param message un message utilisateur à envoyer
+	 * Mï¿½thode permettant d'envoyer un message utilisateur au node ï¿½ droite du node actuel sur le RING
+	 * @param message un message utilisateur ï¿½ envoyer
 	 */
 	public void sendRight(String message)
 	{
@@ -80,8 +114,8 @@ public class RingNode extends Thread implements MessageListener
 	}
 	
 	/**
-	 * Méthode permettant d'envoyer un message utilisateur au node à gauche du node actuel sur le RING
-	 * @param message un message utilisateur à envoyer
+	 * Mï¿½thode permettant d'envoyer un message utilisateur au node ï¿½ gauche du node actuel sur le RING
+	 * @param message un message utilisateur ï¿½ envoyer
 	 */
 	public void sendLeft(String message)
 	{
@@ -90,10 +124,10 @@ public class RingNode extends Thread implements MessageListener
 	}
 	
 	/**
-	 * Méthode de l'application client permettant de transmettre un message à envoyer aux couche réseau inférieur.
-	 * Serialize le message passé en paramètre et l'envoi à au node ayant l'ID passé en paramètre 
+	 * Mï¿½thode de l'application client permettant de transmettre un message ï¿½ envoyer aux couche rï¿½seau infï¿½rieur.
+	 * Serialize le message passï¿½ en paramï¿½tre et l'envoi ï¿½ au node ayant l'ID passï¿½ en paramï¿½tre 
 	 * @param to ID du node destination
-	 * @param message un message haut niveau utilisé par l'application client
+	 * @param message un message haut niveau utilisï¿½ par l'application client
 	 */
 	public void sendTo(int to, String message)
 	{
@@ -102,8 +136,8 @@ public class RingNode extends Thread implements MessageListener
 	}
 	
 	/**
-	 * Méthode permettant d'envoyer un message en Broadcast à tous les autres Node du RING
-	 * @param message le message à envoyer en broadcast
+	 * Mï¿½thode permettant d'envoyer un message en Broadcast ï¿½ tous les autres Node du RING
+	 * @param message le message ï¿½ envoyer en broadcast
 	 */
 	public void broadcast(String message){
 		RingMessage rm = new RingMessage(this.id, BROADCAST , message);
@@ -111,8 +145,8 @@ public class RingNode extends Thread implements MessageListener
 	}
 	
 	/**
-	 * Méthode gérant les broadcasts, les renvoyant au node suivant et le receptionnant si l'ID n'est pas identique à l'ID courrante
-	 * @param rm un message du RING contenant les méta données d'un message
+	 * Mï¿½thode gï¿½rant les broadcasts, les renvoyant au node suivant et le receptionnant si l'ID n'est pas identique ï¿½ l'ID courrante
+	 * @param rm un message du RING contenant les mï¿½ta donnï¿½es d'un message
 	 */
 	private void broadcastHandler(RingMessage rm)
 	{
@@ -123,13 +157,14 @@ public class RingNode extends Thread implements MessageListener
 	}
 	
 	/**
-	 * Méthode de l'application client permettant de transmettre un message à envoyer aux couche réseau inférieur.
-	 * @param rm un message haut niveau utilisé par l'application client
+	 * Mï¿½thode de l'application client permettant de transmettre un message ï¿½ envoyer aux couche rï¿½seau infï¿½rieur.
+	 * @param rm un message haut niveau utilisï¿½ par l'application client
 	 */
 	private void sendToHandler(RingMessage rm)
 	{
 		if(rm.getDestinationNode() != this.id){
 			this.network.sendRight(rm.serialize());
+			System.out.println(ANSI_BLUE + "[Node ID = " + this.id + "] : [     RING-FORWARD    ] [FROM = " + rm.getSourceNode() + " TO = "+ rm.getDestinationNode() +"]" + ANSI_RESET);
 		}
 		else{
 			this.messageDisplay(rm);
@@ -137,13 +172,13 @@ public class RingNode extends Thread implements MessageListener
 	}
 	
 	/**
-	 * Méthode de démonstration utilisé pour simuler des envois successifs.
+	 * Mï¿½thode de dï¿½monstration utilisï¿½ pour simuler des envois successifs.
 	 */
-	synchronized private void syncWait()
+	synchronized private void syncWait(int n)
 	{
 		try
 		{
-			wait(3000);
+			wait(n);
 		}
 		catch (InterruptedException e)
 		{
@@ -153,7 +188,7 @@ public class RingNode extends Thread implements MessageListener
 
 
 	/**
-	 * permet de receptionner un message, de le dé-sérializer et d'appliquer le traitement approprié (forward au noeud suivant ou lecture par exemple)
+	 * permet de receptionner un message, de le dï¿½-sï¿½rializer et d'appliquer le traitement appropriï¿½ (forward au noeud suivant ou lecture par exemple)
 	 */
 	@Override
 	public void receive(String msg)

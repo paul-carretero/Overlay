@@ -25,6 +25,9 @@ public class NodeMQ implements Consumer
 	private Channel 				channel;
 	private IRoutage 				routeur;
 	
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_RESET = "\u001B[0m";
+	
 	/**
 	 * Construit un nouveau noeud 
 	 * @param id L'identifiant du nouveau noeud
@@ -34,7 +37,7 @@ public class NodeMQ implements Consumer
 	 * @throws TimeoutException
 	 */
 	public NodeMQ(int id, final int[][] matrix, IRoutage routage) throws IOException, TimeoutException
-	{
+	{		
 		this.id 		= id;
 		this.listeners 	= new ArrayList<MessageListener>();
 		this.routeur 	= routage;
@@ -68,7 +71,7 @@ public class NodeMQ implements Consumer
 	
 	/**
 	 * Initialise les communications avec le noeud
-	 * @param matrixLine Le tableau permettant de connaître les voisins à lier avec le noeud courant
+	 * @param matrixLine Le tableau permettant de connaï¿½tre les voisins ï¿½ lier avec le noeud courant
 	 */
 	private void initializeQueues(int[] matrixLine)
 	{
@@ -82,8 +85,8 @@ public class NodeMQ implements Consumer
 	}
 
 	/**
-	 * Ajoute deux queues de communication (bidirectionnel) entre le noeud courant et le noeud identifié, donné en argument
-	 * @param id L'identifiant du noeud NodeMQ à ajouter en voisin
+	 * Ajoute deux queues de communication (bidirectionnel) entre le noeud courant et le noeud identifiï¿½, donnï¿½ en argument
+	 * @param id L'identifiant du noeud NodeMQ ï¿½ ajouter en voisin
 	 */
 	public void addNeighbor(int id)
 	{
@@ -101,8 +104,8 @@ public class NodeMQ implements Consumer
 	}
 	
 	/**
-	 * Ajoute un écouteur d'evènement de reception de message dans la liste (pattern observer)
-	 * @param listener L'écouteur
+	 * Ajoute un ï¿½couteur d'evï¿½nement de reception de message dans la liste (pattern observer)
+	 * @param listener L'ï¿½couteur
 	 */
 	public void addListener(MessageListener listener)
 	{
@@ -110,9 +113,9 @@ public class NodeMQ implements Consumer
 	}
 	
 	/**
-	 * Envoi un message sur une queue donnée
-	 * @param queue La queue de communication à utiliser
-	 * @param message Le message à envoyer
+	 * Envoi un message sur une queue donnï¿½e
+	 * @param queue La queue de communication ï¿½ utiliser
+	 * @param message Le message ï¿½ envoyer
 	 */
 	public void sendMessage(String queue, Message message)
 	{
@@ -143,7 +146,7 @@ public class NodeMQ implements Consumer
 				}
 				else{
 					String queue = this.routeur.getChannelName(msg.getDestination());
-					System.out.println("[FORWARD] nodeID = " + this.id + "[msg.from = " + msg.getSender() + " msg.to = "+ msg.getDestination() +"]");
+					System.out.println(ANSI_GREEN + "[Node ID = " + this.id + "] : [   NETWORK-FORWARD   ] [FROM = " + msg.getSender() + " TO = "+ msg.getDestination() +"]" + ANSI_RESET);
 					sendMessage(queue, msg);
 				}
 			}
