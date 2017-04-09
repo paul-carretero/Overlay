@@ -14,13 +14,17 @@ public class OverlayProjectLauncher
 		try
 		{
 			int[][] matrix;
-			String file = "matsrices/matrice2.overlay"; // Fichier par défaut
 			
-			if(args.length > 0)
-				file = args[0];
+			if(args.length == 0)
+			{
+				System.err.println("L'application attends un argument correspondant" +
+						" au nom du fichier contenant les informations de la matrice à virtualiser.\n" +
+						"Exemple : \n java -jar Overlay.jar matrices/matrice1.overlay");
+				System.exit(0);
+			}
 			
 			// Chargement de la matrice à partir du fichier
-			matrix = MatrixReader.readFile(file);
+			matrix = MatrixReader.readFile(args[0]);
 			
 			// Création des noeuds utilisateur (ring)
 			for(int i = 0; i < matrix.length; i++)
