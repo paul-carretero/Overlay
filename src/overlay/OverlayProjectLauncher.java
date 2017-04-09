@@ -1,5 +1,6 @@
 package overlay;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.List;
 import client.RingNode;
@@ -13,9 +14,13 @@ public class OverlayProjectLauncher
 		try
 		{
 			int[][] matrix;
+			String file = "matsrices/matrice2.overlay"; // Fichier par défaut
+			
+			if(args.length > 0)
+				file = args[0];
 			
 			// Chargement de la matrice à partir du fichier
-			matrix = MatrixReader.readFile("matrices/matrice2.overlay");
+			matrix = MatrixReader.readFile(file);
 			
 			// Création des noeuds utilisateur (ring)
 			for(int i = 0; i < matrix.length; i++)
@@ -30,9 +35,14 @@ public class OverlayProjectLauncher
 			}
 			
 		}
+		catch(ConnectException e)
+		{
+			System.err.println("Connection échouée, verifiez si le serveur RabbitMQ est actif");
+		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			//e.printStackTrace();
 		}
 	}
 }

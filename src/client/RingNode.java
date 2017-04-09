@@ -1,6 +1,10 @@
 package client;
 
 import core.MessageListener;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
 import org.json.JSONException;
 import core.NetworkHandler;
 
@@ -32,8 +36,10 @@ public class RingNode extends Thread implements MessageListener
 	 * Instancie également un gestionnaire bas niveau du réseau qui gère les communications.
 	 * @param id ID du node courrant
 	 * @param matrix matrice d'adjacence
+	 * @throws TimeoutException 
+	 * @throws IOException 
 	 */
-	public RingNode(int id,final int[][] matrix)
+	public RingNode(int id,final int[][] matrix) throws IOException, TimeoutException
 	{
 		this.id			= id;
 		this.network	= new NetworkHandler(id, matrix);

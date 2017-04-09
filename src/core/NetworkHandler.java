@@ -35,22 +35,16 @@ public class NetworkHandler
 	/**
 	 * @param myId ID du node courrant
 	 * @param matrix matrice d'adjacence représentant le réseau physique
+	 * @throws TimeoutException 
+	 * @throws IOException 
 	 */
-	public NetworkHandler(int myId, final int[][] matrix)
+	public NetworkHandler(int myId, final int[][] matrix) throws IOException, TimeoutException
 	{
 		this.myId = myId;
 		this.matrix = matrix;
 		this.routage = new Routeur(myId, matrix);
 		
-		try
-		{
-			this.node = new NodeMQ(myId, matrix, this.routage);
-		}
-		catch (IOException | TimeoutException e)
-		{
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
+		this.node = new NodeMQ(myId, matrix, this.routage);
 	}
 	
 	/**
